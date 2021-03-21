@@ -23,8 +23,4 @@ public class Task3 {
 
     }
 
-    static <T> T addFruit(List<T> list) {
-
-        return null;//BoxFruit;
-    }
 }

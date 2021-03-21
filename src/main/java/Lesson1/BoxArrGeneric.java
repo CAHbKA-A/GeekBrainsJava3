@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 public class BoxArrGeneric {
     private Object[] obj;
- //   private ArrayList <Object> arrList;
 
     public BoxArrGeneric(Object... obj) {
         this.obj = obj;

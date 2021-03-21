@@ -2,7 +2,6 @@ package Lesson1;
 
 public class Fruits {
     private double weight;
-   // private int count;
 
     public Fruits(double weight) {
         this.weight = weight;
