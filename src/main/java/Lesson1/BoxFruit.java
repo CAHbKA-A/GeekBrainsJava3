@@ -5,29 +5,32 @@ import java.util.ArrayList;
 public class BoxFruit<T extends Fruits> {
 
     private ArrayList<T> fruits;
-    private double boxWight;
-    private int boxFruitCount;
+
 
     public BoxFruit() {
         this.fruits = new ArrayList<>();
     }
 
-    public double getBoxWight() {
-        return boxWight;
-    }
-
-    public int getBoxFruitCount() {
-        return boxFruitCount;
-    }
 
     public void addFruit(T fruit) {
         fruits.add(fruit);
-        this.boxWight = this.boxWight + fruit.getWeight();
-        this.boxFruitCount++;
     }
 
-    public boolean compare(BoxFruit <?> compareBox) {
-        return (Math.abs(compareBox.getBoxWight() - this.getBoxWight())) < 0.00001;
+    public double getBoxWeight() {
+        if (fruits.size() != 0) {
+            return fruits.size() * fruits.get(0).getWeight();
+        } else return 0;
+    }
+
+
+    public boolean compare(BoxFruit<?> compareBox) {
+        return (Math.abs(compareBox.getBoxWeight() - this.getBoxWeight())) < 0.00001;
+    }
+
+    public void muvFruits(BoxFruit<T> EmptyBox) {
+        EmptyBox.fruits.addAll(fruits);
+
+        this.fruits.clear();
     }
 
 }
