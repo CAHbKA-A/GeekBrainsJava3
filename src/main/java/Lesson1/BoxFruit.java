@@ -28,6 +28,8 @@ public class BoxFruit<T extends Fruits> {
     }
 
     public void muvFruits(BoxFruit<T> EmptyBox) {
+
+        if  (this == EmptyBox) return;
         EmptyBox.fruits.addAll(fruits);
 
         this.fruits.clear();
