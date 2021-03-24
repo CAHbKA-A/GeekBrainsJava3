@@ -26,7 +26,6 @@ public class Client extends JFrame {
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton buttonExit;
-    private JPanel panelNorth;
     private JLabel label;
     private JList userList;
     private DefaultListModel userModel;
@@ -171,7 +170,7 @@ public class Client extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
-        panelNorth = new JPanel();
+        JPanel panelNorth = new JPanel();
         panelNorth.setLayout(new GridLayout());
 
 
@@ -246,13 +245,10 @@ public class Client extends JFrame {
         panel.add(scrollPaneUserList, BorderLayout.EAST);
 
         //send private message by click userName
-        userList.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                String to = (String) userList.getSelectedValue();
-                if (to!=null) {//фиксим баг если клиент вышел
-                    sayField.setText("/w " + to + " ");
-                }
+        userList.addListSelectionListener(e -> {
+            String to = (String) userList.getSelectedValue();
+            if (to!=null) {//фиксим баг если клиент вышел
+                sayField.setText("/w " + to + " ");
             }
         });
 
