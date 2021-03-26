@@ -100,7 +100,7 @@ public class ClientHandler {
             if (parts.length == 3) {
 
                 String nick = (server.getAuthService()).authenticationAlgorithm(parts[1], parts[2]);
-
+                System.out.println(nick);
                 if (!nick.equals("")) {
                     this.name = nick;
 
