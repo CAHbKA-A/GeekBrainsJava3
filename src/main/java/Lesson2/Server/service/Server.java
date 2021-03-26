@@ -18,7 +18,6 @@ public class Server {
         clientList = new ArrayList<>();
         System.out.println("Server starting...");
         authService = new AuthenticationService();
-        authService.createMemberList();
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
 
             System.out.println("Server ready.");
@@ -79,11 +78,11 @@ public class Server {
     }
 
     static synchronized String createUserList() {
-        StringBuilder userList= new StringBuilder("/USERLIST");
+        StringBuilder userList = new StringBuilder("/USERLIST");
         for (ClientHandler client : clientList) {
             userList.append("  ")
                     .append(client.getName());
         }
-         return userList.toString();
+        return userList.toString();
     }
 }

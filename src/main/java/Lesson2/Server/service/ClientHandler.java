@@ -14,10 +14,16 @@ public class ClientHandler {
     private DataOutputStream dos;
     private DataInputStream dis;
     private String name;
+    private String login;
+
     private boolean isAuthorized;
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public ClientHandler(Server server, Socket socket) {
@@ -60,38 +66,57 @@ public class ClientHandler {
                     String inputMessage = readMessage();
                     System.out.println(inputMessage);
 
+                    if (inputMessage.trim().startsWith("/")) { // обработка команд
+                        //TODO переделать на caseof
 
-                    if (inputMessage.trim().equalsIgnoreCase("/q")) {
-                        closeConnection();
-                        Server.unSubScribe(this);
-                        break;
-                    }
-                    if (inputMessage.trim().startsWith("/w ")) {
-                        sendMessage(inputMessage);
-                        inputMessage = inputMessage.substring(3);
-                        int d = inputMessage.indexOf(" ");
-                        try {
-                            if (Server.sendPrivateMessage(inputMessage.substring(d + 1), this.name, inputMessage.substring(0, d))) {
-                                sendMessage("Message delivered.");
-                            } else {
-                                sendMessage("No such user.");
-                            }
-                        } catch (StringIndexOutOfBoundsException e) {
-                            sendMessage("Empty message.");
+                        if (inputMessage.trim().equalsIgnoreCase("/q")) {
+                            closeConnection();
+                            Server.unSubScribe(this);
+                            break;
                         }
-                    } else
+                        if (inputMessage.trim().startsWith("/w ")) {
+                            inputMessage = loginIn(inputMessage);
+                        }
+                        if (inputMessage.trim().startsWith("/myname ")) {
+                            changeName(inputMessage);
+                        }
+                    } else  //не служебные сообщения
                         Server.sendMessageToAll(Server.getTime() + "  " + this.name + ": " + inputMessage);
                 }
 
-            }
-            catch (SocketException socketTimeoutException2) {
+            } catch (SocketException socketTimeoutException2) {
                 System.out.println("Socket already closed");
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }).start();
 
+    }
+
+    private String loginIn(String inputMessage) {
+        sendMessage(inputMessage);
+        inputMessage = inputMessage.substring(3);
+        int d = inputMessage.indexOf(" ");
+        try {
+            if (Server.sendPrivateMessage(inputMessage.substring(d + 1), this.name, inputMessage.substring(0, d))) {
+                sendMessage("Message delivered.");
+            } else {
+                sendMessage("No such user.");
+            }
+        } catch (StringIndexOutOfBoundsException e) {
+            sendMessage("Empty message.");
+        }
+        return inputMessage;
+    }
+
+    private void changeName(String inputMessage) {
+        inputMessage = inputMessage.substring(8);
+        if (inputMessage.length() > 20) sendMessage("Nick is too long!");
+        else {
+            sendMessage(DataBaseService.changeNickName(this.name, inputMessage));
+            this.name = DataBaseService.authentication(this.login);
+            Server.sendMessageToAll(Server.createUserList());
+        }
     }
 
     private void authentication(String inputMessage) {
@@ -100,7 +125,6 @@ public class ClientHandler {
             if (parts.length == 3) {
 
                 String nick = (server.getAuthService()).authenticationAlgorithm(parts[1], parts[2]);
-
                 if (!nick.equals("")) {
                     this.name = nick;
 
@@ -115,6 +139,7 @@ public class ClientHandler {
                         System.out.println("Client " + this.name + " authorized");
                         sendMessage("/authok");
                         Server.subScribe(this);
+                        this.login = parts[1];
                     }
                 } else sendMessage(Server.getTime() + "  " + "Wrong login or password. Try again.");
 

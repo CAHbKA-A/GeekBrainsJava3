@@ -80,7 +80,7 @@ public class Client extends JFrame {
                             loginField.setVisible(false);
                             passwordField.setVisible(false);
                             loginButton.setVisible(false);
-                            chat.setText("You connected! Say Hello.\n");
+                            chat.setText("You connected! Say Hello.\nYou can change nick by /myname new_nick!\n");
                             label.setVisible(true);
                             buttonExit.setVisible(true);
                         }
@@ -113,7 +113,7 @@ public class Client extends JFrame {
                 e.printStackTrace();
             }
         }
-     }
+    }
 
     private void sendMessage(String message) {
 
@@ -162,7 +162,7 @@ public class Client extends JFrame {
     }
 
     private void GUIClient() {
-        setBounds(200, 200, 500, 600);
+        setBounds(200, 200, 550, 600);
         setTitle("GeekChat");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setAlwaysOnTop(true);
@@ -182,7 +182,7 @@ public class Client extends JFrame {
             System.exit(0);
         });
 
-        label = new JLabel("/w nick3 Привет");
+        label = new JLabel("/myname newnick");
         label.setVisible(false);
 
         loginField = new JTextField("A");
@@ -241,13 +241,13 @@ public class Client extends JFrame {
         userModel = new DefaultListModel();
         userModel.add(0, "UserList");
         userList = new JList(userModel);
-        JScrollPane scrollPaneUserList = new JScrollPane(userList, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        JScrollPane scrollPaneUserList = new JScrollPane(userList, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         panel.add(scrollPaneUserList, BorderLayout.EAST);
 
         //send private message by click userName
         userList.addListSelectionListener(e -> {
             String to = (String) userList.getSelectedValue();
-            if (to!=null) {//фиксим баг если клиент вышел
+            if (to != null) {//фиксим баг если клиент вышел
                 sayField.setText("/w " + to + " ");
             }
         });
