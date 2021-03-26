@@ -3,7 +3,7 @@ package Lesson2.Server.service;
 import java.sql.*;
 import java.util.List;
 
-public class DabaBaseService {
+public class DataBaseService {
 
     private static final String DB_NAME = "GB_chat";
     private static final String TABLE_USERS = "Users";
@@ -120,6 +120,52 @@ public class DabaBaseService {
         }
         disconnectDB();
         return nickName;
+    }
+
+    public static String authentication(String login) {
+        connectDB();
+        String nickName = "";
+
+        try {
+            statement = connection.createStatement();
+            String query = "select Nickname from " + TABLE_USERS + " where Login = '" + login + "';";
+            ResultSet rs = statement.executeQuery(query);
+            nickName = rs.getString("Nickname");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        disconnectDB();
+        return nickName;
+    }
+
+    public static String changeNickName(String name, String newName) {
+        connectDB();
+        String returnMessage = "";
+        //TODO возвращать только номер результата, а фомирование текста вынести в клиентхендлер, чтобы зря необновлять список юзеров,
+        try {
+            statement = connection.createStatement();
+            String query = "select count (Nickname) from " + TABLE_USERS + " where NickName = '" + newName + "';";
+            ResultSet rs = statement.executeQuery(query);
+            // System.out.println(query);
+            if (rs.getInt(1) != 0) returnMessage = "NickName is busy!!";
+            else {
+                query = "update " + TABLE_USERS + " SET Nickname = '" + newName + "' WHERE Nickname = '" + name + "';";
+                System.out.println(query);
+                if (statement.executeUpdate(query) == 1) {
+                    returnMessage = "You are " + newName + ", now. ";
+                    Server.sendMessageToAll(Server.getTime() + " User " + name + " changed name to " + newName);
+                }
+
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return ("Something wrong");
+        }
+
+
+        disconnectDB();
+        return returnMessage;
+
     }
 
 }

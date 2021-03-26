@@ -5,8 +5,8 @@ import Lesson2.Server.interfaces.AuthenticationInt;
 
 public class AuthenticationService implements AuthenticationInt {
 
- @Override
+    @Override
     public String authenticationAlgorithm(String login, String pass) {
-        return DabaBaseService.authentication(login, pass);
+        return DataBaseService.authentication(login, pass);
     }
 }

@@ -1,6 +1,6 @@
 package Lesson2.Server;
 
-import Lesson2.Server.service.DabaBaseService;
+import Lesson2.Server.service.DataBaseService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 */
 public class InstallChat {
     public static void main(String[] args) {
-        DabaBaseService.createUserTable();
+        DataBaseService.createUserTable();
 
         List<String[]> users = new ArrayList <>();
         users.add(new String[]{"A", "A", "Alex"});
@@ -21,6 +21,6 @@ public class InstallChat {
             users.add(new String[]{"A" + i, "A" + i, "Alex_" + i});
         }
 
-        DabaBaseService.createUsers(users);
+        DataBaseService.createUsers(users);
     }
 }
