@@ -139,8 +139,12 @@ public class DataBaseService {
     }
 
     public static String changeNickName(String name, String newName) {
-        connectDB();
         String returnMessage = "";
+        if (name.equalsIgnoreCase(newName)){
+            returnMessage ="Same Name((";
+        }
+        connectDB();
+
         //TODO возвращать только номер результата, а фомирование текста вынести в клиентхендлер, чтобы зря необновлять список юзеров,
         try {
             statement = connection.createStatement();

@@ -1,14 +1,15 @@
 package Lesson2.Client;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 
 import static java.lang.Thread.sleep;
@@ -29,6 +30,7 @@ public class Client extends JFrame {
     private JLabel label;
     private JList userList;
     private DefaultListModel userModel;
+    private String login;
 
     public static void main(String[] args) {
         Client frame = new Client();
@@ -51,6 +53,7 @@ public class Client extends JFrame {
                 socket = new Socket(HOST, PORT);
                 if (socket.isConnected()) {
                     chat.append("Server connected \n");
+                    Loging.writeToLog("New session. " + getDate(), loginField.getText());
                     break;
                 }
                 try {
@@ -80,7 +83,8 @@ public class Client extends JFrame {
                             loginField.setVisible(false);
                             passwordField.setVisible(false);
                             loginButton.setVisible(false);
-                            chat.setText("You connected! Say Hello.\nYou can change nick by /myname new_nick!\n");
+                            chat.setText(Loging.readHistory(100, loginField.getText()));
+                            chat.append("\n\n" + getDate() + "\nYou connected! Say Hello.\nYou can change nick by /myname new_nick!\n");
                             label.setVisible(true);
                             buttonExit.setVisible(true);
                         }
@@ -94,6 +98,7 @@ public class Client extends JFrame {
                         }
                     } else {
                         chat.append(serverMess + "\n");
+                        Loging.writeToLog(serverMess, loginField.getText());
                     }
                 }
             } catch (IOException ignored) {
@@ -105,7 +110,7 @@ public class Client extends JFrame {
         String message = sayField.getText().trim();
 
         if (!message.isEmpty()) {
-            System.out.println(message);
+            // System.out.println(message);
             try {
                 dos.writeUTF(message);
                 sayField.setText("");
@@ -161,11 +166,16 @@ public class Client extends JFrame {
         }
     }
 
+    public static String getDate() {
+        SimpleDateFormat format = new SimpleDateFormat("dd MMMM yyyy");
+        return format.format(Calendar.getInstance().getTime());
+    }
+
     private void GUIClient() {
         setBounds(200, 200, 550, 600);
         setTitle("GeekChat");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setAlwaysOnTop(true);
+        //setAlwaysOnTop(true);
 
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
@@ -201,6 +211,8 @@ public class Client extends JFrame {
         panel.add(panelNorth, BorderLayout.NORTH);
 
         chat = new JTextArea();
+        DefaultCaret defaultCaret = (DefaultCaret) chat.getCaret();
+        defaultCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         chat.setEditable(false);
 
 
@@ -222,7 +234,6 @@ public class Client extends JFrame {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == 10) {
                     sendMessage();
-                    System.out.println("1");
                 }
             }
 
