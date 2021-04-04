@@ -39,7 +39,7 @@ public class ClientHandler {
             e.printStackTrace();
         }
 
-        new Thread(() -> {
+         Thread clientHandlerThread = new Thread(() -> {
             while (!isAuthorized) {
 
                 try {
@@ -89,8 +89,8 @@ public class ClientHandler {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }).start();
-
+        });
+        server.addThread(clientHandlerThread);
     }
 
     private String loginIn(String inputMessage) {
