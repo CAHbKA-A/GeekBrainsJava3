@@ -1,14 +1,14 @@
 /*Создать три потока, каждый из которых выводит определенную букву (A, B и C) 5 раз
 (порядок – ABСABСABС). Используйте wait/notify/notifyAll./*
  */
-public class Task1 {
+public class TaskOne {
 
     private static final Object monitor = new Object();
     private static char letter = 'C';
 
     public static void main(String[] args) {
 
-        Task1 taskThread= new Task1();
+        TaskOne taskThread= new TaskOne();
 
         new Thread(() -> taskThread.print('A')).start();
         new Thread(() -> taskThread.print('B')).start();
@@ -40,6 +40,4 @@ public class Task1 {
         if (c == 'B') return 'C';
         return 'A';
     }
-
-
 }
