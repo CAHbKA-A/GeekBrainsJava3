@@ -33,6 +33,9 @@ public class Server {
             }
         } catch (IOException ignored) {
         }
+        finally {
+            executorService.shutdown();
+        }
     }
 
     synchronized static void sendMessageToAll(String message) {
