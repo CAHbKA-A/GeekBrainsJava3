@@ -42,15 +42,7 @@ public class Car implements Runnable {
                 race.getStages().get(i).go(this);
             }
 
-            synchronized (race.getMon()) {
-                if (winCounter == 0) {
-                    System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> " + this.name + " Победил!!");
-                    winCounter++;
-                } else {
-                    winCounter++;
-                    System.out.println(winCounter + " место :" + this.name);
-                }
-            }
+            chekFinish();
 
             MainClass.cbForStart.await();
         } catch (InterruptedException | BrokenBarrierException e) {
@@ -58,5 +50,17 @@ public class Car implements Runnable {
 
         }
 
+    }
+
+    private  void chekFinish() {
+        synchronized (race.getMon()) {
+            if (winCounter == 0) {
+                System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> " + this.name + " Победил!!");
+                winCounter++;
+            } else {
+                winCounter++;
+                System.out.println(winCounter + " место :" + this.name);
+            }
+        }
     }
 }
