@@ -1,33 +1,19 @@
 package Lesson5;
 
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 public class MainClass {
 
-
     public static final int CARS_COUNT = 4;
-    private static CyclicBarrier cbForStart;
-    private static CountDownLatch countDownForStart;
-    private static CountDownLatch countDownForFinish;
+    public static CyclicBarrier cbForStart;
 
     public static int getCarsCount() {
         return CARS_COUNT;
     }
 
-    public static CountDownLatch getCountDownForStart() {
-        return countDownForStart;
-    }
-
-    public static CountDownLatch getCountDownForFinish() {
-        return countDownForFinish;
-    }
-
     public static void main(String[] args) {
-        cbForStart = new CyclicBarrier(CARS_COUNT);
-        countDownForStart = new CountDownLatch(CARS_COUNT);
-        countDownForFinish = new CountDownLatch(CARS_COUNT);
-        // Lock lock = new L
+        cbForStart = new CyclicBarrier(CARS_COUNT + 1);
 
         System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Подготовка!!!");
         Race race = new Race(new Road(60), new Tunnel(), new Road(40));
@@ -40,19 +26,22 @@ public class MainClass {
         }
 
         try {
-            countDownForStart.await();
+            while (cbForStart.getNumberWaiting() != CARS_COUNT) {
+                Thread.sleep(200);
+            }
+
             System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка началась!!!");
-            ;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            cbForStart.await();
 
-        try {
-            countDownForFinish.await();
+            while (cbForStart.getNumberWaiting() != CARS_COUNT) {
+                Thread.sleep(400);
+            }
+
+            cbForStart.await();
             System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка закончилась!!!");
-        } catch (InterruptedException e) {
+
+        } catch (InterruptedException | BrokenBarrierException e) {
             e.printStackTrace();
         }
-
     }
 }

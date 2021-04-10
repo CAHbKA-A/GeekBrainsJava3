@@ -1,17 +1,21 @@
 package Lesson5;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.CopyOnWriteArrayList;
-//
 
 public class Race {
-    private CopyOnWriteArrayList<Stage> stages ;
+    private ArrayList<Stage> stages;
 
-    public CopyOnWriteArrayList<Stage> getStages() {
+    private Object monitor;
+    public Object getMon() {
+        return monitor;
+    }
+    public ArrayList<Stage> getStages() {
         return stages;
     }
 
     public Race(Stage... stages) {
-        this.stages = new CopyOnWriteArrayList<Stage>(Arrays.asList(stages));
+        this.stages = new ArrayList<>(Arrays.asList(stages));
+        this.monitor = new Object();
     }
 }

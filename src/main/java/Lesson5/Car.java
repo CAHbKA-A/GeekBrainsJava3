@@ -1,8 +1,6 @@
 package Lesson5;
 
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.BrokenBarrierException;
 
 public class Car implements Runnable {
     private static int CARS_COUNT;
@@ -14,8 +12,8 @@ public class Car implements Runnable {
     private Race race;
     private int speed;
     private String name;
-    private static CyclicBarrier cbForStart;
-    private static Lock lock = new ReentrantLock();
+    private static int winCounter = 0;
+
 
     public String getName() {
         return name;
@@ -34,25 +32,31 @@ public class Car implements Runnable {
 
     @Override
     public void run() {
-        cbForStart = new CyclicBarrier(CARS_COUNT);
-        try {
 
+        try {
             System.out.println(this.name + " готовится");
             Thread.sleep(500 + (int) (Math.random() * 800));
-            MainClass.getCountDownForStart().countDown();
             System.out.println(this.name + " готов");
-            cbForStart.await();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        for (int i = 0; i < race.getStages().size(); i++) {
-            race.getStages().get(i).go(this);
-        }
-        MainClass.getCountDownForFinish().countDown();
-        if (MainClass.getCountDownForFinish().getCount() == CARS_COUNT - 1) {
-            System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> " + this.name + " Победил!!");
-        }
+            MainClass.cbForStart.await();
+            for (int i = 0; i < race.getStages().size(); i++) {
+                race.getStages().get(i).go(this);
+            }
 
+            synchronized (race.getMon()) {
+                if (winCounter == 0) {
+                    System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> " + this.name + " Победил!!");
+                    winCounter++;
+                } else {
+                    winCounter++;
+                    System.out.println(winCounter + " место :" + this.name);
+                }
+            }
+
+            MainClass.cbForStart.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            e.printStackTrace();
+
+        }
 
     }
 }
