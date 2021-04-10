@@ -7,7 +7,7 @@ public class Race {
     private ArrayList<Stage> stages;
 
     private Object monitor;
-    public Object getMon() {
+    public Object getMonitor() {
         return monitor;
     }
     public ArrayList<Stage> getStages() {

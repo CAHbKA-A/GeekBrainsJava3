@@ -27,7 +27,7 @@ public class MainClass {
 
         try {
             while (cbForStart.getNumberWaiting() != CARS_COUNT) {
-                Thread.sleep(200);
+                Thread.sleep(300);
             }
 
             System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка началась!!!");

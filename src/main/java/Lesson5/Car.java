@@ -12,7 +12,7 @@ public class Car implements Runnable {
     private Race race;
     private int speed;
     private String name;
-    private static int winCounter = 0;
+    private static Integer winCounter = 0;
 
 
     public String getName() {
@@ -45,6 +45,7 @@ public class Car implements Runnable {
             chekFinish();
 
             MainClass.cbForStart.await();
+
         } catch (InterruptedException | BrokenBarrierException e) {
             e.printStackTrace();
 
@@ -52,12 +53,12 @@ public class Car implements Runnable {
 
     }
 
-    private  void chekFinish() {
-        synchronized (race.getMon()) {
+    private void chekFinish() throws BrokenBarrierException, InterruptedException {
+        synchronized (race.getMonitor()) {
             if (winCounter == 0) {
-                System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> " + this.name + " Победил!!");
                 winCounter++;
-            } else {
+                System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> " + this.name + " Победил!!");
+                } else {
                 winCounter++;
                 System.out.println(winCounter + " место :" + this.name);
             }
