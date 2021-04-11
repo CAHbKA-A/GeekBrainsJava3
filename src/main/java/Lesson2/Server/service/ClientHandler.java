@@ -1,5 +1,8 @@
 package Lesson2.Server.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,6 +18,7 @@ public class ClientHandler {
     private DataInputStream dis;
     private String name;
     private String login;
+    private static final Logger LOGGER = LogManager.getLogger(ClientHandler.class.getName());
 
     private boolean isAuthorized;
 
@@ -36,26 +40,26 @@ public class ClientHandler {
             this.dis = new DataInputStream(socket.getInputStream());
             this.dos = new DataOutputStream(socket.getOutputStream());
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Data IO Stream error: " + e);
         }
 
-         Thread clientHandlerThread = new Thread(() -> {
+        Thread clientHandlerThread = new Thread(() -> {
             while (!isAuthorized) {
 
                 try {
                     socket.setSoTimeout(120000);
                     String inputMessage = readMessage();
-                    System.out.println(inputMessage);
+                    LOGGER.debug(inputMessage);
                     authentication(inputMessage);
 
                 } catch (SocketTimeoutException socketTimeoutException) {
-                    System.out.println("timeout socket");
+                    LOGGER.debug("timeout socket, Connection TimeOut!");
                     sendMessage("Connection TimeOut!");
                     sendMessage("/q");
                     closeConnection();
 
                 } catch (IOException e) {
-                    //e.printStackTrace();
+                    LOGGER.error("Socket for client error: " + e);
                     break; // если запустить клиент и не авторизовываясь закрыть окно.
                 }
             }
@@ -64,7 +68,7 @@ public class ClientHandler {
                 while (true) {
                     socket.setSoTimeout(0);
                     String inputMessage = readMessage();
-                    System.out.println(inputMessage);
+                    LOGGER.debug(inputMessage);
 
                     if (inputMessage.trim().startsWith("/")) { // обработка команд
                         //TODO переделать на caseof
@@ -85,9 +89,9 @@ public class ClientHandler {
                 }
 
             } catch (SocketException socketTimeoutException2) {
-                System.out.println("Socket already closed");
+                LOGGER.error("Socket timeout error: " + socketTimeoutException2);
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Read message IO error: " + e);
             }
         });
         server.addThread(clientHandlerThread);
@@ -104,6 +108,7 @@ public class ClientHandler {
                 sendMessage("No such user.");
             }
         } catch (StringIndexOutOfBoundsException e) {
+            LOGGER.debug("Empty privat message from" + this.name);
             sendMessage("Empty message.");
         }
         return inputMessage;
@@ -132,18 +137,20 @@ public class ClientHandler {
                     //проверка присутсвия в чате
                     if (Server.isAlreadyConnected(this.name)) {
                         sendMessage(Server.getTime() + "  " + this.name + " already in chat!");
+                        LOGGER.debug(this.name + " already in chat!");
                         this.isAuthorized = false;
 
                     } else {
                         this.isAuthorized = true;
-                        System.out.println("Client " + this.name + " authorized");
+                        LOGGER.info("Client " + this.name + " authorized");
                         sendMessage("/authok");
                         Server.subScribe(this);
                         this.login = parts[1];
                     }
-                } else sendMessage(Server.getTime() + "  " + "Wrong login or password. Try again.");
-
-
+                } else {
+                    sendMessage(Server.getTime() + "  " + "Wrong login or password. Try again.");
+                    LOGGER.debug(this.name + " Wrong login or password.");
+                }
             }
         }
     }
@@ -152,7 +159,7 @@ public class ClientHandler {
         try {
             dos.writeUTF(message);
         } catch (IOException e) {
-            //  e.printStackTrace();
+            LOGGER.error("IO error in DataOutStreamReader" + e);
         }
     }
 
@@ -166,26 +173,26 @@ public class ClientHandler {
             try {
                 dos.flush();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Flush error in DataOutStreamReader" + e);
             }
             try {
                 dos.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Close error in DataOutStreamReader" + e);
             }
         }
         if (dis != null) {
             try {
                 dis.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Close error in DataInputStreamReader" + e);
             }
         }
         if (socket != null) {
             try {
                 socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Closing SOCKET error" + e);
             }
         }
     }
