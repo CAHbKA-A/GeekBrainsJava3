@@ -1,7 +1,7 @@
 package Lesson2.Server.service;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -49,7 +49,7 @@ public class ClientHandler {
                 try {
                     socket.setSoTimeout(120000);
                     String inputMessage = readMessage();
-                    LOGGER.debug(inputMessage);
+                    LOGGER.info("Somebody sent to server message: "+inputMessage);
                     authentication(inputMessage);
 
                 } catch (SocketTimeoutException socketTimeoutException) {
@@ -68,7 +68,7 @@ public class ClientHandler {
                 while (true) {
                     socket.setSoTimeout(0);
                     String inputMessage = readMessage();
-                    LOGGER.debug(inputMessage);
+                    LOGGER.info(this.name+ " sent message to server : "+inputMessage);
 
                     if (inputMessage.trim().startsWith("/")) { // обработка команд
                         //TODO переделать на caseof
