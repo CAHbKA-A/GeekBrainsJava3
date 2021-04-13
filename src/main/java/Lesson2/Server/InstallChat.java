@@ -1,6 +1,10 @@
 package Lesson2.Server;
 
+
 import Lesson2.Server.service.DataBaseService;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +14,9 @@ import java.util.List;
 1. создаем БД с пользовалтелями
 */
 public class InstallChat {
+    private static final Logger LOGGER = LogManager.getLogger(InstallChat.class.getName());
     public static void main(String[] args) {
+        LOGGER.debug("Creating DB");
         DataBaseService.createUserTable();
 
         List<String[]> users = new ArrayList <>();
@@ -22,5 +28,6 @@ public class InstallChat {
         }
 
         DataBaseService.createUsers(users);
+        LOGGER.debug("DB created");
     }
 }

@@ -1,5 +1,8 @@
 package Lesson2.Server.service;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import java.sql.*;
 import java.util.List;
 
@@ -10,6 +13,7 @@ public class DataBaseService {
     private static Connection connection;
     private static Statement statement;
     private static PreparedStatement ps;
+    private static final Logger LOGGER = LogManager.getLogger(DataBaseService.class.getName());
 
     public static void createUserTable() {
         connectDB();
@@ -17,7 +21,7 @@ public class DataBaseService {
         try {
             statement = connection.createStatement();
         } catch (SQLException throwables) {
-            System.out.println("Error: Can not create statement!");
+            LOGGER.error("Error: Can not create statement!");
         }
 
 
@@ -29,13 +33,13 @@ public class DataBaseService {
                 .append(" Login    TEXT    UNIQUE NOT NULL,")
                 .append(" Password TEXT    NOT NULL,")
                 .append(" Nickname TEXT    NOT NULL); ");
-        // System.out.println(stringCreator);
+        LOGGER.debug(stringCreator);
 
 
         try {
             statement.executeUpdate(String.valueOf(stringCreator));
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            LOGGER.error("Error in executeUpdate!" + throwables);
         }
         disconnectDB();
     }
@@ -46,13 +50,13 @@ public class DataBaseService {
             Class.forName("org.sqlite.JDBC");
 
         } catch (ClassNotFoundException e) {
-            System.out.println("Error: \"org.sqlite.JDBC\" could not load to memory!");
+            LOGGER.error("Error: \"org.sqlite.JDBC\" could not load to memory!");
         }
 
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + DB_NAME + ".db");
         } catch (SQLException throwables) {
-            System.out.println("Error: Can not connect to DB!");
+            LOGGER.error("Error: Can not connect to DB!" + throwables);
         }
     }
 
@@ -61,8 +65,7 @@ public class DataBaseService {
             try {
                 statement.close();
             } catch (SQLException throwables) {
-                System.out.println("Error:  could not close statement!");
-                throwables.printStackTrace();
+                LOGGER.error("Error:  could not close statement! " + throwables);
             }
         }
 
@@ -70,8 +73,7 @@ public class DataBaseService {
             try {
                 ps.close();
             } catch (SQLException throwables) {
-                System.out.println("Error:  could not close connect to DB!");
-                throwables.printStackTrace();
+                LOGGER.error("Error:  could not close PreparedStatement! " + throwables);
             }
         }
 
@@ -79,8 +81,7 @@ public class DataBaseService {
             try {
                 connection.close();
             } catch (SQLException throwables) {
-                System.out.println("Error:  could not close connect to DB!");
-                throwables.printStackTrace();
+                LOGGER.error("Error:  could not close connect to DB! " + throwables);
             }
         }
     }
@@ -99,7 +100,7 @@ public class DataBaseService {
             }
             connection.setAutoCommit(true);
         } catch (SQLException throwables) {
-            //  throwables.printStackTrace();
+            LOGGER.error("Error of Autcommit or  prepareStatement :" + throwables);
         }
 
         disconnectDB();
@@ -112,11 +113,11 @@ public class DataBaseService {
         try {
             statement = connection.createStatement();
             String query = "select Nickname from " + TABLE_USERS + " where Login = '" + login + "'and Password ='" + pass + "';";
-            //  System.out.println(query);
+            LOGGER.debug(query);
             ResultSet rs = statement.executeQuery(query);
             nickName = rs.getString("Nickname");
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            LOGGER.error("Error of executeQuery :" + throwables);
         }
         disconnectDB();
         return nickName;
@@ -132,7 +133,7 @@ public class DataBaseService {
             ResultSet rs = statement.executeQuery(query);
             nickName = rs.getString("Nickname");
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            LOGGER.error("Error of executeQuery :" + throwables);
         }
         disconnectDB();
         return nickName;
@@ -140,8 +141,8 @@ public class DataBaseService {
 
     public static String changeNickName(String name, String newName) {
         String returnMessage = "";
-        if (name.equalsIgnoreCase(newName)){
-            returnMessage ="Same Name((";
+        if (name.equalsIgnoreCase(newName)) {
+            returnMessage = "Same Name((";
         }
         connectDB();
 
@@ -150,19 +151,21 @@ public class DataBaseService {
             statement = connection.createStatement();
             String query = "select count (Nickname) from " + TABLE_USERS + " where NickName = '" + newName + "';";
             ResultSet rs = statement.executeQuery(query);
-            // System.out.println(query);
+            LOGGER.debug(query);
             if (rs.getInt(1) != 0) returnMessage = "NickName is busy!!";
             else {
                 query = "update " + TABLE_USERS + " SET Nickname = '" + newName + "' WHERE Nickname = '" + name + "';";
-                System.out.println(query);
+                LOGGER.debug(query);
                 if (statement.executeUpdate(query) == 1) {
                     returnMessage = "You are " + newName + ", now. ";
                     Server.sendMessageToAll(Server.getTime() + " User " + name + " changed name to " + newName);
+                    LOGGER.info(Server.getTime() + " User " + name + " changed name to " + newName);
                 }
 
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+            LOGGER.warn("Something wrong in executeUpdate");
             return ("Something wrong");
         }
 

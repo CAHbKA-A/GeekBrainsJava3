@@ -1,5 +1,8 @@
 package Lesson2.Server.service;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -15,37 +18,60 @@ public class Server {
     private static List<ClientHandler> clientList;
     private AuthenticationService authService;
     private static ExecutorService executorService;
+    private static final Logger LOGGER = LogManager.getLogger(Server.class.getName());
 
     public Server() {
 
         clientList = new ArrayList<>();
-        System.out.println("Server starting...");
+        LOGGER.info("Server starting...");
         authService = new AuthenticationService();
-        executorService = Executors.newFixedThreadPool(255);//с ограничением одновременных пользователей
-        // executorService = Executors.newCachedThreadPool();//без огрничений
+        // executorService = Executors.newFixedThreadPool(70);//с ограничением одновременных пользователей/ Пандемия. больше 70 не собираемся.
+        executorService = Executors.newCachedThreadPool();//без огрничений
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
 
-            System.out.println("Server ready.");
+            LOGGER.info("Server ready.");
             while (true) {
                 Socket socket = serverSocket.accept();
-                System.out.println("Client Connecting..");
+                LOGGER.info("Client Connecting..");
                 new ClientHandler(this, socket);
             }
-        } catch (IOException ignored) {
-        }
-        finally {
+        } catch (IOException e) {
+            LOGGER.error("ServerSocket Error:" + e);
+        } finally {
             executorService.shutdown();
         }
     }
 
     synchronized static void sendMessageToAll(String message) {
+        message = formatMassage(message);// разбивка длинных сообщений на строки
         for (ClientHandler client : clientList) {
             client.sendMessage(message);
         }
     }
 
+    //разбивка длинных сообщений  на строки\n
+    //TODO добавить переносы не только для пробела
+    static String formatMassage(String message) {
+        if (message.length() > 70) {
+            int startIndex = 0;
+            int endIndex = 70;
+            StringBuilder sb = new StringBuilder();
+            while (startIndex < message.length() - 1) {
+                endIndex = message.indexOf(" ", endIndex);
+                if (endIndex == -1) endIndex = message.length();
+                sb.append(message.substring(startIndex, endIndex))
+                        .append("\n");
+                startIndex = endIndex;
+                endIndex = startIndex + 70;
+            }
+            message = sb.toString();
+        }
+        return message;
+    }
+
     synchronized static boolean sendPrivateMessage(String message, String nickFrom, String nickTo) {
         // делать проверку отправления самому себе не стал. может перед тем как отправить  я хочу проверить на себе
+        message = formatMassage(message);// разбивка длинных сообщений на строки
         for (ClientHandler clientHandler : clientList) {
             if (clientHandler.getName().equalsIgnoreCase(nickTo)) {
                 clientHandler.sendMessage(getTime() + ": User " + nickFrom + " sent privat massage to you: " + message);
@@ -64,7 +90,7 @@ public class Server {
     static synchronized void unSubScribe(ClientHandler client) {
         clientList.remove(client);
         sendMessageToAll(getTime() + "  " + client.getName() + " Leave the chat!!!");
-        System.out.println(client.getName() + " disconnected");
+        LOGGER.info(client.getName() + " disconnected");
         sendMessageToAll(createUserList());
     }
 
