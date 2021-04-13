@@ -9,6 +9,7 @@ package Lesson6;
 import java.util.Arrays;
 
 public class MethodForTask2 {
+
    public  int[] subArray(int[] array) {
         int index = -1;
         for (int i = array.length -1; i >= 0; i--) {
@@ -22,4 +23,6 @@ public class MethodForTask2 {
         }
         return Arrays.copyOfRange(array, index+1, array.length );
     }
+
+
 }
